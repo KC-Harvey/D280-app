@@ -70,7 +70,7 @@ Be concise but thorough. If the code looks good, mention that too.
 """
 
 # Send to Gemini
-url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
+url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
 headers = {"Content-Type": "application/json"}
 payload = {
     "contents": [{"parts": [{"text": prompt}]}],
@@ -84,14 +84,24 @@ try:
     response = requests.post(f"{url}?key={os.environ['GEMINI_API_KEY']}", headers=headers, json=payload, timeout=30)
     response.raise_for_status()
     result = response.json()
+    
+    # Check if we have a valid response
+    if 'candidates' not in result or len(result['candidates']) == 0:
+        print(f"No candidates in response: {result}")
+        sys.exit(1)
+    
     message = result['candidates'][0]['content']['parts'][0]['text']
+    
 except requests.exceptions.RequestException as e:
     print(f"Error calling Gemini API: {e}")
+    if hasattr(e, 'response') and e.response is not None:
+        print(f"Response status: {e.response.status_code}")
+        print(f"Response text: {e.response.text}")
     sys.exit(1)
 except (KeyError, IndexError) as e:
     print(f"Error parsing Gemini response: {e}")
+    print(f"Full response: {result}")
     sys.exit(1)
-
 # Format the message with a header
 formatted_message = f"""## 🤖 AI Code Review (Gemini)
 
