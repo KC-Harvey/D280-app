@@ -41,6 +41,6 @@ it('should create', () => {
   it('should throw an error when calling a nonexistent method', () => {
     expect(() => {
       (component as any).launchRocket();
-    }).toThrow();
+    }).toThrow(); // adding a comment lmao
   });
 });
